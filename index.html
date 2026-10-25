@@ -99,6 +99,9 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
 .btn { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 0 18px; border-radius: 8px; background: var(--accent); color: var(--surface); font-weight: 600; text-decoration: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
 .btn[aria-disabled="true"] { opacity: .55; cursor: default; }
 .price { font: 600 22px var(--mono); }
+.thanks { background: var(--ok-soft); border: 1px solid var(--ok); border-radius: 10px; padding: 22px; margin-bottom: 28px; display: grid; gap: 10px; max-width: 760px; }
+.thanks h2 { margin: 0; font: 600 26px/1.15 var(--display); color: var(--ok); }
+.thanks p { margin: 0; font-size: 15px; }
 .method { margin-top: 40px; display: grid; gap: 14px; max-width: 760px; }
 .method h2 { font: 600 24px/1.2 var(--display); margin: 0; }
 .method p, .method li { color: var(--muted); font-size: 14px; }
@@ -110,6 +113,13 @@ footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line);
 </head>
 <body>
 <div class="wrap">
+  <section class="thanks" id="thanks" hidden aria-live="polite">
+    <h2>Thank you. Your pre-order is confirmed.</h2>
+    <p>Polar, our payment processor, has emailed you a receipt.</p>
+    <p>The Family Access File will be delivered by email on 6 December 2026. If that date changes, you will hear from us first and can cancel for a full refund.</p>
+    <p>Questions, or want a refund? Email <a href="mailto:mohamed@halim.pro">mohamed@halim.pro</a> from the address you used at checkout. Full refund until delivery.</p>
+    <p>The free checker below stays available while you wait.</p>
+  </section>
   <header>
     <div class="eyebrow">For non-US expats in the Gulf</div>
     <h1 id="headline">Three cross-border gaps most expat investors don't know they have</h1>
@@ -183,6 +193,7 @@ footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line);
               <option value="difc_fa">DIFC Financial Assets Will</option>
               <option value="difc_prop">DIFC Property Will</option>
               <option value="adjd">Abu Dhabi (ADJD) will</option>
+              <option value="adgm">ADGM will (Abu Dhabi Global Market)</option>
             </select>
           </div>
           <div class="field">
@@ -262,7 +273,7 @@ footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line);
     <ul>
       <li><strong>US estate tax.</strong> Non-US persons owe US estate tax on US-situated assets, including shares of US companies wherever they are held. The executor must file Form 706-NA if those assets exceed $60,000. Tax uses the IRS unified rate schedule (18% to 40%) minus a $13,000 credit. Deductions, gifts and treaty relief are not modelled. <a href="https://www.irs.gov/individuals/international-taxpayers/some-nonresidents-with-us-assets-must-file-estate-tax-returns" target="_blank" rel="noopener">IRS: nonresidents with US assets</a>, <a href="https://www.irs.gov/instructions/i706" target="_blank" rel="noopener">Form 706 instructions, Table A</a>.</li>
       <li><strong>UK inheritance tax tail.</strong> Since 6 April 2025, anyone UK resident for 10 of the previous 20 tax years is a long-term resident, with worldwide assets in scope. After leaving, that lasts 3 tax years for 10 to 13 years of residence, rising by one year per extra year, up to 10. People who left before 6 April 2025 fall under transitional rules. <a href="https://www.gov.uk/guidance/inheritance-tax-if-youre-a-long-term-uk-resident" target="_blank" rel="noopener">GOV.UK guidance</a>, <a href="https://www.gov.uk/hmrc-internal-manuals/inheritance-tax-manual/ihtm47020" target="_blank" rel="noopener">HMRC IHTM47020</a>.</li>
-      <li><strong>UAE succession.</strong> UAE bank accounts, including joint accounts, are frozen once the bank learns of the holder's death, until a court order. DIFC wills are available to non-Muslims and each type covers a defined set of assets. <a href="https://www.difccourts.ae/about/faq/wills-faq" target="_blank" rel="noopener">DIFC Courts Wills FAQ</a>.</li>
+      <li><strong>UAE succession.</strong> UAE bank accounts, including joint accounts, are frozen once the bank learns of the holder's death, until a court order. DIFC wills are available to non-Muslims and each type covers a defined set of assets. Abu Dhabi offers its own court wills and ADGM wills, which differ in scope, so confirm which one fits your assets. <a href="https://www.difccourts.ae/about/faq/wills-faq" target="_blank" rel="noopener">DIFC Courts Wills FAQ</a>, <a href="https://gateleyplc.com/gateley-middle-east/wills-for-non-muslim-and-muslim-expats-in-the-uae/" target="_blank" rel="noopener">Gateley: wills in the UAE</a>.</li>
     </ul>
   </section>
 
@@ -354,7 +365,8 @@ function uaeRisk(a) {
     difc_full: { bank: true, brokerAcct: true, prop: true, kids: "full" },
     difc_fa: { bank: true, brokerAcct: true, prop: false, kids: false },
     difc_prop: { bank: false, brokerAcct: false, prop: true, kids: false },
-    adjd: { bank: true, brokerAcct: true, prop: true, kids: "check" }
+    adjd: { bank: true, brokerAcct: true, prop: true, kids: "check" },
+    adgm: { bank: true, brokerAcct: true, prop: true, kids: "check" }
   }[a.will];
   const hasBank = a.banks !== "none";
   if (a.will === "none") issues.push(["bad", "With no UAE will, your UAE assets go through court succession. Practitioners estimate 6 to 12 months before families can access funds."]);
@@ -368,6 +380,8 @@ function uaeRisk(a) {
   if (a.kids === "yes" && covers.kids === "check") issues.push(["warn", "Check with the Abu Dhabi court or your lawyer that your will names a guardian for your children."]);
   if (hasBank && a.outside === "no") issues.push(["bad", "Your family has no cash they can reach while UAE accounts are frozen."]);
   if (a.will === "difc_fa") issues.push(["warn", "A DIFC Financial Assets Will covers up to 10 accounts held at UAE branches only."]);
+  if (a.will === "adgm") issues.push(["warn", "An ADGM will is strongest for assets located in Abu Dhabi. Confirm with your lawyer that it covers each of your UAE assets, including any in Dubai."]);
+  if (a.will === "adjd") issues.push(["warn", "Abu Dhabi court wills and ADGM wills are different registrations. Confirm with your lawyer which one you hold and what it covers."]);
   const level = issues.some(i => i[0] === "bad") ? "bad" : issues.length ? "warn" : "ok";
   return { level, issues };
 }
@@ -384,6 +398,8 @@ if (typeof document !== "undefined") {
   $("ukleft").add(new Option("I still live in the UK", "uk"));
   for (let y = 2026; y >= 2005; y--) $("ukleft").add(new Option(`${y}-${String(y + 1).slice(2)}`, String(y)));
   $("ukleft").value = "2025";
+
+  if (new URLSearchParams(location.search).get("paid") === "1") { $("thanks").hidden = false; document.title = "Thank you | Family Access File"; }
 
   const variant = pickVariant();
   $("headline").textContent = VARIANTS[variant].headline;
