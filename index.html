@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Estate Readiness Check</title>
+<meta name="description" content="Check your US estate tax exposure, UK inheritance tax tail, and UAE account freeze risk in two minutes. Runs in your browser. Nothing is stored.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root {
+  --bg: #f3f5f6;
+  --surface: #ffffff;
+  --fg: #16212b;
+  --muted: #5b6874;
+  --line: #d9e0e5;
+  --accent: #1f5f5b;
+  --accent-soft: #e2efed;
+  --ok: #2d6a3e;
+  --ok-soft: #e4f1e7;
+  --warn: #8a5a00;
+  --warn-soft: #fbf0d9;
+  --bad: #a3302a;
+  --bad-soft: #f8e3e1;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10171d; --surface: #172129; --fg: #e6ecef; --muted: #9aa8b3; --line: #2b3943;
+    --accent: #7cc3bb; --accent-soft: #1b3533; --ok: #8fd09f; --ok-soft: #1a3322;
+    --warn: #e8bf6a; --warn-soft: #3a2e14; --bad: #f09a92; --bad-soft: #3d1f1d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10171d; --surface: #172129; --fg: #e6ecef; --muted: #9aa8b3; --line: #2b3943;
+  --accent: #7cc3bb; --accent-soft: #1b3533; --ok: #8fd09f; --ok-soft: #1a3322;
+  --warn: #e8bf6a; --warn-soft: #3a2e14; --bad: #f09a92; --bad-soft: #3d1f1d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+[hidden] { display: none !important; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 40px 56px; }
+header { max-width: 680px; display: grid; gap: 12px; margin-bottom: 32px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 600 clamp(30px, 5vw, 44px)/1.1 var(--display); margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 0; font-size: 16px; max-width: 62ch; }
+.privacy { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--accent); background: var(--accent-soft); padding: 6px 10px; border-radius: 6px; width: fit-content; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+form { display: grid; gap: 20px; min-width: 0; }
+fieldset { margin: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 20px; display: grid; gap: 16px; min-width: 0; }
+legend { padding: 0 6px; font: 600 20px/1.2 var(--display); }
+.step { font: 500 12px var(--mono); color: var(--muted); margin-right: 6px; }
+.hint { color: var(--muted); font-size: 13px; margin: -6px 0 0; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+@media (max-width: 520px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.field { display: grid; gap: 6px; min-width: 0; }
+label { font-weight: 500; font-size: 14px; }
+.sub { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+input, select {
+  width: 100%; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 7px; padding: 10px 12px; min-height: 44px;
+}
+input { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.money { position: relative; }
+.money span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-family: var(--mono); pointer-events: none; }
+.money input { padding-left: 28px; }
+input:focus-visible, select:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 16px; min-width: 0; }
+@media (max-width: 860px) { aside { position: static; } }
+.results { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.results h2 { font: 600 20px/1.2 var(--display); margin: 0; padding: 18px 20px 14px; border-bottom: 1px solid var(--line); }
+.result { padding: 16px 20px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+.result:last-child { border-bottom: 0; }
+.rhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rname { font-weight: 600; }
+.pill { font: 500 11.5px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; padding: 6px 8px; border-radius: 999px; }
+.pill.ok { color: var(--ok); background: var(--ok-soft); }
+.pill.warn { color: var(--warn); background: var(--warn-soft); }
+.pill.bad { color: var(--bad); background: var(--bad-soft); }
+.pill.na { color: var(--muted); background: var(--bg); }
+.big { font: 600 28px/1.1 var(--mono); font-variant-numeric: tabular-nums; }
+.result p { margin: 0; font-size: 14px; }
+.result ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; }
+.src { font-size: 12.5px; color: var(--muted); }
+.src a { color: var(--accent); }
+.cta { background: var(--fg); color: var(--bg); border-radius: 10px; padding: 20px; display: grid; gap: 10px; }
+.cta h3 { margin: 0; font: 600 20px/1.2 var(--display); }
+.cta p { margin: 0; font-size: 14px; opacity: .85; }
+.cta ul { margin: 0; padding-left: 18px; font-size: 14px; display: grid; gap: 4px; opacity: .9; }
+.btn { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 0 18px; border-radius: 8px; background: var(--accent); color: var(--surface); font-weight: 600; text-decoration: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
+.btn[aria-disabled="true"] { opacity: .55; cursor: default; }
+.price { font: 600 22px var(--mono); }
+.method { margin-top: 40px; display: grid; gap: 14px; max-width: 760px; }
+.method h2 { font: 600 24px/1.2 var(--display); margin: 0; }
+.method p, .method li { color: var(--muted); font-size: 14px; }
+.method ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+.method a { color: var(--accent); }
+footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { .result { transition: background-color .2s; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">For non-US expats in the Gulf</div>
+    <h1 id="headline">Three cross-border gaps most expat investors don't know they have</h1>
+    <p class="lede" id="lede">US tax on US-listed shares, the UK inheritance tax that follows you after you leave, and UAE accounts that lock until a court order. Check all three for your own situation in two minutes.</p>
+    <div class="privacy">Runs entirely in your browser. Nothing you type is sent or stored.</div>
+  </header>
+
+  <div class="layout">
+    <form id="f" novalidate>
+      <fieldset>
+        <legend><span class="step">1/3</span>US-listed investments</legend>
+        <p class="hint">Use today's value in US dollars. A rough number is fine.</p>
+        <div class="field">
+          <label for="usperson">Are you a US citizen or green card holder?</label>
+          <select id="usperson">
+            <option value="no" selected>No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="usstocks">US-domiciled shares and ETFs<span class="sub">e.g. Apple, Tesla, VOO, SPY, QQQ</span></label>
+            <div class="money"><span>$</span><input id="usstocks" inputmode="numeric" value="150000"></div>
+          </div>
+          <div class="field">
+            <label for="usprop">Property located in the US<span class="sub">Market value of your share</span></label>
+            <div class="money"><span>$</span><input id="usprop" inputmode="numeric" value="0"></div>
+          </div>
+          <div class="field">
+            <label for="ucits">Non-US funds and ETFs<span class="sub">e.g. Ireland-domiciled VWRA, CSPX</span></label>
+            <div class="money"><span>$</span><input id="ucits" inputmode="numeric" value="40000"></div>
+          </div>
+          <div class="field">
+            <label for="uscash">Cash held at a US broker<span class="sub">Uninvested cash balance</span></label>
+            <div class="money"><span>$</span><input id="uscash" inputmode="numeric" value="5000"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="treaty">Does your home country have an estate tax treaty with the US?</label>
+          <select id="treaty">
+            <option value="unsure" selected>Not sure</option>
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="step">2/3</span>Time in the UK</legend>
+        <div class="grid2">
+          <div class="field">
+            <label for="ukyears">Tax years you were UK resident<span class="sub">In the 20 tax years before you left</span></label>
+            <select id="ukyears"></select>
+          </div>
+          <div class="field">
+            <label for="ukleft">First tax year you were non-resident<span class="sub">UK tax years start on 6 April</span></label>
+            <select id="ukleft"></select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="step">3/3</span>Assets in the UAE</legend>
+        <div class="grid2">
+          <div class="field">
+            <label for="will">Your will</label>
+            <select id="will">
+              <option value="none" selected>No will</option>
+              <option value="home">A will from my home country only</option>
+              <option value="difc_full">DIFC Full Will</option>
+              <option value="difc_fa">DIFC Financial Assets Will</option>
+              <option value="difc_prop">DIFC Property Will</option>
+              <option value="adjd">Abu Dhabi (ADJD) will</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="banks">UAE bank accounts</label>
+            <select id="banks">
+              <option value="none">None</option>
+              <option value="one" selected>One bank</option>
+              <option value="many">Two or more banks</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="joint">Any joint account with your spouse?</label>
+            <select id="joint">
+              <option value="no">No</option>
+              <option value="yes" selected>Yes</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="broker">Where your brokerage account is held</label>
+            <select id="broker">
+              <option value="none">No brokerage account</option>
+              <option value="uae">UAE-licensed broker</option>
+              <option value="overseas" selected>Overseas broker (e.g. IBKR)</option>
+              <option value="both">Both</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="prop">Property in the UAE</label>
+            <select id="prop">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes, including off-plan</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="kids">Children under 18 living in the UAE</label>
+            <select id="kids">
+              <option value="no">No</option>
+              <option value="yes" selected>Yes</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="outside">Can your family reach cash outside the UAE without you?</label>
+            <select id="outside">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+      <p class="hint">The form opens filled with an example investor. Replace the numbers with your own.</p>
+    </form>
+
+    <aside>
+      <section class="results" aria-live="polite">
+        <h2>Your exposure</h2>
+        <div class="result" id="r-us"></div>
+        <div class="result" id="r-uk"></div>
+        <div class="result" id="r-uae"></div>
+      </section>
+      <section class="cta">
+        <h3>The Family Access File</h3>
+        <p>One document that lets the people you trust reach everything you have built, without months of searching. Made from your answers and your broker statement, in English and Arabic.</p>
+        <ul>
+          <li>Every account, where it is, and who to contact</li>
+          <li>Which will covers which asset, and the gaps</li>
+          <li>US and UK filing triggers with the official rules cited</li>
+          <li>The documents your family will need, in order</li>
+        </ul>
+        <div class="price">$59 <span style="font-size:13px;font-weight:400;opacity:.75">pre-order. Your card is only charged when it is released.</span></div>
+        <a class="btn" id="preorder" href="#" target="_blank" rel="noopener">Pre-order the Family Access File</a>
+      </section>
+    </aside>
+  </div>
+
+  <section class="method">
+    <h2>How this is calculated</h2>
+    <ul>
+      <li><strong>US estate tax.</strong> Non-US persons owe US estate tax on US-situated assets, including shares of US companies wherever they are held. The executor must file Form 706-NA if those assets exceed $60,000. Tax uses the IRS unified rate schedule (18% to 40%) minus a $13,000 credit. Deductions, gifts and treaty relief are not modelled. <a href="https://www.irs.gov/individuals/international-taxpayers/some-nonresidents-with-us-assets-must-file-estate-tax-returns" target="_blank" rel="noopener">IRS: nonresidents with US assets</a>, <a href="https://www.irs.gov/instructions/i706" target="_blank" rel="noopener">Form 706 instructions, Table A</a>.</li>
+      <li><strong>UK inheritance tax tail.</strong> Since 6 April 2025, anyone UK resident for 10 of the previous 20 tax years is a long-term resident, with worldwide assets in scope. After leaving, that lasts 3 tax years for 10 to 13 years of residence, rising by one year per extra year, up to 10. People who left before 6 April 2025 fall under transitional rules. <a href="https://www.gov.uk/guidance/inheritance-tax-if-youre-a-long-term-uk-resident" target="_blank" rel="noopener">GOV.UK guidance</a>, <a href="https://www.gov.uk/hmrc-internal-manuals/inheritance-tax-manual/ihtm47020" target="_blank" rel="noopener">HMRC IHTM47020</a>.</li>
+      <li><strong>UAE succession.</strong> UAE bank accounts, including joint accounts, are frozen once the bank learns of the holder's death, until a court order. DIFC wills are available to non-Muslims and each type covers a defined set of assets. <a href="https://www.difccourts.ae/about/faq/wills-faq" target="_blank" rel="noopener">DIFC Courts Wills FAQ</a>.</li>
+    </ul>
+  </section>
+
+  <section class="method" id="policies">
+    <h2>Product, delivery and policies</h2>
+    <ul>
+      <li><strong>What you get.</strong> The Family Access File is a digital document (PDF) delivered by email, made from the information you provide. It is an educational organising tool, not legal, tax or financial advice.</li>
+      <li><strong>Pre-order and delivery.</strong> The price is $59 USD. Pre-orders are delivered by email by the release date shown at checkout. If the release date moves, you will be told by email and can cancel for a full refund.</li>
+      <li><strong>Refunds.</strong> Full refund on request at any time before delivery, and within 14 days after delivery. Email <a href="mailto:mohamed@halim.pro">mohamed@halim.pro</a> with your order email.</li>
+      <li><strong>Privacy.</strong> The checker runs in your browser and sends nothing anywhere. Payments are handled by our payment processor, which keeps your payment details. We only use your email and the details you give us to produce and deliver your file, and we do not sell or share them.</li>
+      <li><strong>Contact.</strong> Mohamed, <a href="mailto:mohamed@halim.pro">mohamed@halim.pro</a>.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <div>General information only. This is not legal, tax or financial advice, and it does not recommend buying or selling anything. Rules change and personal circumstances matter, so confirm your position with a qualified adviser.</div>
+    <div>Rules checked against official sources in October 2026. Built by halim.pro.</div>
+  </footer>
+</div>
+
+<script>
+const PREORDER_URL_A = "";
+const PREORDER_URL_B = "";
+
+const VARIANTS = {
+  a: {
+    headline: "Three cross-border gaps most expat investors don't know they have",
+    lede: "US tax on US-listed shares, the UK inheritance tax that follows you after you leave, and UAE accounts that lock until a court order. Check all three for your own situation in two minutes."
+  },
+  b: {
+    headline: "Up to 40% of your US shares could go to the IRS. Does it apply to you?",
+    lede: "Non-Americans holding US-listed shares and ETFs can owe US estate tax, even living in Dubai with an overseas broker. Check that, plus your UK and UAE exposure, in two minutes."
+  }
+};
+
+function pickVariant() {
+  try {
+    const forced = new URLSearchParams(location.search).get("v");
+    if (forced === "a" || forced === "b") return forced;
+  } catch (e) {}
+  try {
+    const saved = localStorage.getItem("erc_variant");
+    if (saved === "a" || saved === "b") return saved;
+  } catch (e) {}
+  const v = Math.random() < 0.5 ? "a" : "b";
+  try { localStorage.setItem("erc_variant", v); } catch (e) {}
+  return v;
+}
+
+const TABLE_A = [
+  [0, 0, 0.18], [10000, 1800, 0.20], [20000, 3800, 0.22], [40000, 8200, 0.24],
+  [60000, 13000, 0.26], [80000, 18200, 0.28], [100000, 23800, 0.30], [150000, 38800, 0.32],
+  [250000, 70800, 0.34], [500000, 155800, 0.37], [750000, 248300, 0.39], [1000000, 345800, 0.40]
+];
+const NRA_CREDIT = 13000;
+const NRA_THRESHOLD = 60000;
+
+function tentativeTax(amount) {
+  if (!(amount > 0)) return 0;
+  let row = TABLE_A[0];
+  for (const r of TABLE_A) if (amount > r[0]) row = r;
+  return row[1] + (amount - row[0]) * row[2];
+}
+
+function usEstate(usSitus) {
+  const filing = usSitus > NRA_THRESHOLD;
+  const tax = Math.max(0, Math.round(tentativeTax(usSitus) - NRA_CREDIT));
+  return { filing, tax };
+}
+
+function ukTail(years, firstNonResStart) {
+  if (firstNonResStart === null) {
+    return years >= 10 ? { status: "resident_ltr" } : { status: "resident" };
+  }
+  if (firstNonResStart < 2025) {
+    return years >= 15 ? { status: "transitional_check" } : { status: "transitional_out" };
+  }
+  if (years < 10) return { status: "out" };
+  const tail = years <= 13 ? 3 : Math.min(10, years - 10);
+  const endYear = firstNonResStart + tail;
+  return { status: "tail", tail, endYear };
+}
+
+function uaeRisk(a) {
+  const issues = [];
+  const covers = {
+    none: { bank: false, brokerAcct: false, prop: false, kids: false },
+    home: { bank: false, brokerAcct: false, prop: false, kids: false },
+    difc_full: { bank: true, brokerAcct: true, prop: true, kids: "full" },
+    difc_fa: { bank: true, brokerAcct: true, prop: false, kids: false },
+    difc_prop: { bank: false, brokerAcct: false, prop: true, kids: false },
+    adjd: { bank: true, brokerAcct: true, prop: true, kids: "check" }
+  }[a.will];
+  const hasBank = a.banks !== "none";
+  if (a.will === "none") issues.push(["bad", "With no UAE will, your UAE assets go through court succession. Practitioners estimate 6 to 12 months before families can access funds."]);
+  if (a.will === "home") issues.push(["bad", "A home-country will must be legalised, translated and recognised by a UAE court before it helps, which adds months."]);
+  if (hasBank) issues.push([covers.bank ? "warn" : "bad", "Your UAE bank accounts freeze when the bank learns of your death." + (a.joint === "yes" ? " Joint accounts freeze too, so your spouse loses access to them." : "") + (covers.bank ? " Your will speeds up release, but expect weeks without access." : "")]);
+  if ((a.broker === "uae" || a.broker === "both") && !covers.brokerAcct) issues.push(["bad", "Your UAE brokerage account is not covered by your current will."]);
+  if (a.broker === "overseas" || a.broker === "both") issues.push(["warn", "Your overseas broker account sits outside UAE wills in practice. It follows the rules of the broker's country, so check what your family would need there."]);
+  if (a.prop === "yes" && !covers.prop) issues.push(["bad", "Your UAE property is not covered by your current will."]);
+  if (a.kids === "yes" && !covers.kids) issues.push(["bad", "No guardian is named for your children in a UAE-registered will, so a court will decide."]);
+  if (a.kids === "yes" && covers.kids === "full") issues.push(["warn", "A DIFC Full Will names guardians only if it was drafted with guardianship clauses and your children live in Dubai or Ras Al Khaimah. The online template does not include them."]);
+  if (a.kids === "yes" && covers.kids === "check") issues.push(["warn", "Check with the Abu Dhabi court or your lawyer that your will names a guardian for your children."]);
+  if (hasBank && a.outside === "no") issues.push(["bad", "Your family has no cash they can reach while UAE accounts are frozen."]);
+  if (a.will === "difc_fa") issues.push(["warn", "A DIFC Financial Assets Will covers up to 10 accounts held at UAE branches only."]);
+  const level = issues.some(i => i[0] === "bad") ? "bad" : issues.length ? "warn" : "ok";
+  return { level, issues };
+}
+
+if (typeof document !== "undefined") {
+  const $ = id => document.getElementById(id);
+  const money = n => "$" + Math.round(n).toLocaleString("en-US");
+  const num = id => { const v = parseFloat(String($(id).value).replace(/[^0-9.]/g, "")); return isFinite(v) ? v : 0; };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const pill = (lvl, txt) => `<span class="pill ${lvl}">${txt}</span>`;
+
+  for (let i = 0; i <= 20; i++) $("ukyears").add(new Option(i === 0 ? "None" : String(i), String(i), false, i === 0));
+  $("ukyears").value = "14";
+  $("ukleft").add(new Option("I still live in the UK", "uk"));
+  for (let y = 2026; y >= 2005; y--) $("ukleft").add(new Option(`${y}-${String(y + 1).slice(2)}`, String(y)));
+  $("ukleft").value = "2025";
+
+  const variant = pickVariant();
+  $("headline").textContent = VARIANTS[variant].headline;
+  $("lede").textContent = VARIANTS[variant].lede;
+  document.documentElement.dataset.variant = variant;
+  const PREORDER_URL = variant === "a" ? PREORDER_URL_A : PREORDER_URL_B;
+  const pre = $("preorder");
+  if (PREORDER_URL) { pre.href = PREORDER_URL; }
+  else { pre.textContent = "Pre-orders open soon"; pre.setAttribute("aria-disabled", "true"); pre.addEventListener("click", e => e.preventDefault()); pre.removeAttribute("target"); }
+
+  function render() {
+    const usOut = $("r-us");
+    if ($("usperson").value === "yes") {
+      usOut.innerHTML = `<div class="rhead"><span class="rname">US estate tax</span>${pill("na", "Not covered")}</div><p>US citizens and green card holders are taxed on worldwide assets under different rules. This check is built for non-US persons.</p>`;
+    } else {
+      const situs = num("usstocks") + num("usprop");
+      const r = usEstate(situs);
+      const lvl = !r.filing ? "ok" : r.tax > 0 ? "bad" : "warn";
+      const label = !r.filing ? "Below threshold" : "Filing required";
+      const lines = [];
+      lines.push(`US-situated assets counted: <strong>${money(situs)}</strong>. The filing threshold is ${money(NRA_THRESHOLD)}.`);
+      if (num("ucits") > 0) lines.push(`Your non-US funds (${money(num("ucits"))}) are not US-situated and are not counted.`);
+      if (num("uscash") > 0) lines.push(`Cash at a US broker (${money(num("uscash"))}) is not counted here. Its treatment depends on how the broker holds it, so ask an adviser.`);
+      if ($("treaty").value !== "no") lines.push(`If your home country has a US estate tax treaty, the tax may be lower. <a href="https://www.irs.gov/businesses/small-businesses-self-employed/estate-gift-tax-treaties-international" target="_blank" rel="noopener">See the IRS treaty list</a>.`);
+      usOut.innerHTML = `<div class="rhead"><span class="rname">US estate tax</span>${pill(lvl, label)}</div>
+        <div class="big">${money(r.tax)}</div>
+        <p>Estimated US estate tax your heirs could owe${r.filing ? ", due within 9 months of death" : ""}.</p>
+        <ul>${lines.map(l => `<li>${l}</li>`).join("")}</ul>`;
+    }
+
+    const yrs = parseInt($("ukyears").value, 10);
+    const leftV = $("ukleft").value;
+    const t = ukTail(yrs, leftV === "uk" ? null : parseInt(leftV, 10));
+    const ukMap = {
+      resident: ["na", "UK resident", "You are under 10 years of UK residence, so non-UK assets are outside UK inheritance tax for now."],
+      resident_ltr: ["warn", "In scope", "You are a long-term UK resident. Your worldwide estate, including UAE assets, is within UK inheritance tax at 40% above the nil-rate band."],
+      out: ["ok", "Out of scope", "With fewer than 10 years of UK residence, your non-UK assets are outside UK inheritance tax. Assets located in the UK, such as UK property, stay within it regardless."],
+      transitional_out: ["ok", "Likely out", "You left before 6 April 2025. Under the transitional rules, fewer than 15 years of residence usually means your non-UK assets are out of scope. Assets located in the UK stay within UK inheritance tax regardless."],
+      transitional_check: ["warn", "Check", "You left before 6 April 2025 with 15 or more years of residence. Transitional rules may keep your worldwide estate in scope. Confirm the end date with an adviser."]
+    };
+    let ukHtml;
+    if (yrs === 0 && leftV !== "uk") {
+      ukHtml = `<div class="rhead"><span class="rname">UK inheritance tax</span>${pill("na", "No UK link")}</div><p>No UK residence entered, so the UK tail does not apply.</p>`;
+    } else if (t.status === "tail") {
+      const inScope = new Date() < new Date(`${t.endYear}-04-06T00:00:00`);
+      ukHtml = `<div class="rhead"><span class="rname">UK inheritance tax</span>${pill(inScope ? "bad" : "ok", inScope ? "In scope" : "Tail ended")}</div>
+        <div class="big">5 Apr ${t.endYear}</div>
+        <p>${inScope ? "Until this date, your worldwide estate, including UAE property and offshore portfolios, stays within UK inheritance tax at 40% above the nil-rate band." : "Your tail has ended. Non-UK assets are outside UK inheritance tax while you stay non-resident. Assets located in the UK stay within it regardless."}</p>
+        <ul><li>${yrs} years of UK residence gives a tail of ${t.tail} tax years after you left.</li></ul>`;
+    } else {
+      const m = ukMap[t.status];
+      ukHtml = `<div class="rhead"><span class="rname">UK inheritance tax</span>${pill(m[0], m[1])}</div><p>${m[2]}</p>`;
+    }
+    $("r-uk").innerHTML = ukHtml;
+
+    const u = uaeRisk({ will: $("will").value, banks: $("banks").value, joint: $("joint").value, broker: $("broker").value, prop: $("prop").value, kids: $("kids").value, outside: $("outside").value });
+    const uLabel = { ok: "Covered", warn: "Gaps", bad: "High risk" }[u.level];
+    const nBad = u.issues.filter(i => i[0] === "bad").length;
+    $("r-uae").innerHTML = `<div class="rhead"><span class="rname">UAE account freeze</span>${pill(u.level, uLabel)}</div>
+      ${u.issues.length ? `<div class="big">${nBad} ${nBad === 1 ? "gap" : "gaps"}</div><ul>${u.issues.map(i => `<li>${esc(i[1])}</li>`).join("")}</ul>` : `<p>No gaps found in what you entered.</p>`}`;
+  }
+
+  $("f").addEventListener("input", render);
+  $("f").addEventListener("change", render);
+  $("f").addEventListener("submit", e => e.preventDefault());
+  render();
+}
+</script>
+</body>
+</html>
