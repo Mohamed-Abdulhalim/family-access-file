@@ -99,6 +99,13 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
 .btn { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 0 18px; border-radius: 8px; background: var(--accent); color: var(--surface); font-weight: 600; text-decoration: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
 .btn[aria-disabled="true"] { opacity: .55; cursor: default; }
 .price { font: 600 22px var(--mono); }
+.example { padding: 12px 20px; background: var(--accent-soft); color: var(--accent); font-size: 13px; border-bottom: 1px solid var(--line); }
+.byline { margin: 0; font-size: 14px; color: var(--muted); }
+.byline a, .about a { color: var(--accent); }
+.jump { display: none; }
+@media (max-width: 860px) {
+  .jump { display: inline-flex; position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); z-index: 5; min-height: 44px; align-items: center; padding: 0 16px; border-radius: 999px; background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+}
 .thanks { background: var(--ok-soft); border: 1px solid var(--ok); border-radius: 10px; padding: 22px; margin-bottom: 28px; display: grid; gap: 10px; max-width: 760px; }
 .thanks h2 { margin: 0; font: 600 26px/1.15 var(--display); color: var(--ok); }
 .thanks p { margin: 0; font-size: 15px; }
@@ -108,7 +115,8 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
 .method p, .method li { color: var(--muted); font-size: 14px; }
 .method ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
 .method a { color: var(--accent); }
-footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; display: grid; gap: 6px; }
+footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--fg); opacity: .82; font-size: 13.5px; display: grid; gap: 6px; }
+footer a { color: var(--accent); }
 @media (prefers-reduced-motion: no-preference) { .result { transition: background-color .2s; } }
 </style>
 </head>
@@ -126,7 +134,9 @@ footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line);
     <h1 id="headline">Three cross-border gaps most expat investors don't know they have</h1>
     <p class="lede" id="lede">US tax on US-listed shares, the UK inheritance tax that follows you after you leave, and UAE accounts that lock until a court order. Check all three for your own situation in two minutes.</p>
     <div class="privacy">The checker runs in your browser. Nothing you type is sent or stored.</div>
+    <p class="byline">Built by Mohamed Abdulhalim, a developer in Cairo. Not a lawyer. <a href="https://www.linkedin.com/in/halim99/" target="_blank" rel="noopener">LinkedIn</a></p>
   </header>
+  <a class="jump" id="jump" href="#results">See your results</a>
 
   <div class="layout">
     <form id="f" novalidate>
@@ -248,8 +258,9 @@ footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line);
     </form>
 
     <aside>
-      <section class="results" aria-live="polite">
+      <section class="results" id="results" aria-live="polite">
         <h2>Your exposure</h2>
+        <div class="example" id="example">Example investor. These numbers are made up. Change any field on the left to see your own result.</div>
         <div class="result" id="r-us"></div>
         <div class="result" id="r-uk"></div>
         <div class="result" id="r-uae"></div>
@@ -278,6 +289,11 @@ footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line);
     </ul>
   </section>
 
+  <section class="method about" id="about">
+    <h2>Who built this</h2>
+    <p>I am Mohamed Abdulhalim, a developer based in Cairo. I built this checker by reading the official sources linked above (IRS, GOV.UK, DIFC Courts) and turning their rules into a calculator. I am not a lawyer or a tax adviser, and I do not give legal or tax advice. If you are a will drafter or adviser and spot an error, please tell me at <a href="mailto:mohamed@halim.pro">mohamed@halim.pro</a> and I will fix it. You can also find me on <a href="https://www.linkedin.com/in/halim99/" target="_blank" rel="noopener">LinkedIn</a>.</p>
+  </section>
+
   <section class="method" id="policies">
     <h2>Product, delivery and policies</h2>
     <ul>
@@ -291,7 +307,7 @@ footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line);
 
   <footer>
     <div>General information only. This is not legal, tax or financial advice, and it does not recommend buying or selling anything. Rules change and personal circumstances matter, so confirm your position with a qualified adviser.</div>
-    <div>Rules checked against official sources in October 2026. Built by halim.pro.</div>
+    <div>Rules checked against official sources in October 2026. Built by Mohamed Abdulhalim, <a href="https://halim.pro" target="_blank" rel="noopener">halim.pro</a>.</div>
   </footer>
 </div>
 
@@ -301,11 +317,11 @@ const PREORDER_URL_B = "https://buy.polar.sh/polar_cl_CMULHhY3HuD9qHye3OpdOdGIUh
 
 const VARIANTS = {
   a: {
-    headline: "Three cross-border gaps most expat investors don't know they have",
+    headline: "Three cross-border gaps that can catch expat investors out",
     lede: "US tax on US-listed shares, the UK inheritance tax that follows you after you leave, and UAE accounts that lock until a court order. Check all three for your own situation in two minutes."
   },
   b: {
-    headline: "Up to 40% of your US shares could go to the IRS. Does it apply to you?",
+    headline: "Holding US shares from the Gulf? Your family may owe the IRS.",
     lede: "Non-Americans holding US-listed shares and ETFs can owe US estate tax, even living in Dubai with an overseas broker. Check that, plus your UK and UAE exposure, in two minutes."
   }
 };
@@ -392,7 +408,8 @@ if (typeof document !== "undefined") {
   const money = n => "$" + Math.round(n).toLocaleString("en-US");
   const num = id => { const v = parseFloat(String($(id).value).replace(/[^0-9.]/g, "")); return isFinite(v) ? v : 0; };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const pill = (lvl, txt) => `<span class="pill ${lvl}">${txt}</span>`;
+  let touched = false;
+  const pill = (lvl, txt) => `<span class="pill ${touched ? lvl : "na"}">${txt}</span>`;
 
   for (let i = 0; i <= 20; i++) $("ukyears").add(new Option(i === 0 ? "None" : String(i), String(i), false, i === 0));
   $("ukyears").value = "14";
@@ -478,8 +495,14 @@ if (typeof document !== "undefined") {
       ${u.issues.length ? `<div class="big">${nBad} ${nBad === 1 ? "gap" : "gaps"}</div><ul>${u.issues.map(i => `<li>${esc(i[1])}</li>`).join("")}</ul>` : `<p>No gaps found in what you entered.</p>`}`;
   }
 
-  $("f").addEventListener("input", render);
-  $("f").addEventListener("change", render);
+  const touch = () => { if (!touched) { touched = true; $("example").hidden = true; } render(); };
+  $("f").addEventListener("input", touch);
+  $("f").addEventListener("change", touch);
+
+  const jump = $("jump");
+  if (jump && "IntersectionObserver" in window) {
+    new IntersectionObserver(entries => { jump.hidden = entries[0].isIntersecting; }, { threshold: 0.15 }).observe($("results"));
+  }
   $("f").addEventListener("submit", e => e.preventDefault());
   render();
 }
